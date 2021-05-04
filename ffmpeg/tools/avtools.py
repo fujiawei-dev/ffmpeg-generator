@@ -1,14 +1,14 @@
 '''
 Date: 2021.02-25 20:50:07
 LastEditors: Rustle Karl
-LastEditTime: 2021.04.25 10:24:18
+LastEditTime: 2021.05.04 23:34:46
 '''
 import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from .. import constants
-from .._ffmpeg import input, merge_outputs
+from .._ffmpeg import input, merge_outputs, output
 from .._utils import seconds_to_string
 
 __all__ = [
@@ -77,7 +77,8 @@ def convert_format(src: Union[str, Path], dst: Union[str, Path], *,
 
 
 def cut_into_multiple_parts(src: Union[str, Path], dst: Union[str, Path],
-                            *, durations: List[float], vcodec="libx264"):
+                            *, durations: List[float], vcodec="libx264",
+                            enable_cuda=True, overwrite=True):
     """Cut the video or audio into multiple parts.
 
     Example:
@@ -91,44 +92,47 @@ def cut_into_multiple_parts(src: Union[str, Path], dst: Union[str, Path],
         raise ValueError(f'Expected at least 2 duration values; got {len(durations)}')
 
     outs = []
-    raw = input(src)
     path = Path(src)
     start_position = 0
+    raw = input(src, enable_cuda=enable_cuda)
 
     for order, duration in enumerate(durations):
-        # skip
+        # skip negative value
         if duration is not None and duration < 0:
             start_position -= duration
             continue
 
         outs.append(raw.output(f"{dst / path.stem}_part{order}{path.suffix}",
-                               acodec="copy", vcodec=vcodec,
-                               start_position=seconds_to_string(start_position),
-                               duration=duration))
+                               acodec="copy", vcodec=vcodec, enable_cuda=enable_cuda,
+                               start_position=seconds_to_string(start_position), duration=duration))
 
         if duration is not None:
             start_position += duration
 
-    merge_outputs(*outs).run()
+    merge_outputs(*outs).run(overwrite=overwrite)
 
 
 def cut_one_part(src: Union[str, Path], dst: Union[str, Path], *, vcodec="libx264",
-                 start: Union[str, int, float] = None, end: Union[str, int, float] = None,
-                 duration: Union[int, float] = None, only_video=False, only_audio=False):
-    '''Intercept a piece of audio or video from audio or video'''
+                 enable_cuda=True, overwrite=True, start: Union[str, int, float] = None,
+                 end: Union[str, int, float] = None, duration: Union[int, float] = None,
+                 only_video=False, only_audio=False):
+    '''Intercept a piece of audio or video from audio or video.
+    Slower than `cut_into_multiple_parts`.'''
     if isinstance(start, (int, float)) and isinstance(end, (int, float)):
         end = start + duration if end == 0 or end < start else end
 
-    av = input(src)
-    a = av.audio.atrim(start=start, end=end, duration=duration)
-    v = av.video.trim(start=start, end=end, duration=duration)
+    av = input(src, enable_cuda=enable_cuda)
+    a = av.audio.atrim(start=start, end=end, duration=duration).asetpts("PTS-STARTPTS")
+    v = av.video.trim(start=start, end=end, duration=duration).setpts("PTS-STARTPTS")
 
+    streams = [v, a]
     if only_video:
-        v.output(dst, vcodec=vcodec).run()
+        streams = [v]
     elif only_audio:
-        a.output(dst, vcodec=vcodec).run()
-    else:
-        v.output(a, dst, vcodec=vcodec).run()
+        streams = [a]
+
+    output(*streams, dst, vcodec=vcodec, enable_cuda=enable_cuda). \
+        run(overwrite=overwrite)
 
 
 def merge_video_audio(v_src: Union[str, Path], a_src: Union[str, Path],
@@ -140,6 +144,7 @@ def merge_video_audio(v_src: Union[str, Path], a_src: Union[str, Path],
 
 def concat_multiple_parts(dst: Union[str, Path], *files: Union[str, Path],
                           vcodec="copy", acodec="copy"):
+    '''Splicing video or audio clips.'''
     concat = tempfile.mktemp()
 
     with open(concat, "w", encoding="utf-8") as fp:

@@ -1,7 +1,7 @@
 '''
 Date: 2021.02-24 14:58:57
 LastEditors: Rustle Karl
-LastEditTime: 2021.03.20 10:11:32
+LastEditTime: 2021.05.04 23:36:56
 '''
 import sys
 
@@ -18,6 +18,7 @@ VIDEO_SOURCES = {
 # CUDA Encoders
 H264_NVENC = 'h264_nvenc'
 HEVC_NVENC = 'hevc_nvenc'
+CUDA_ENCODERS = {H264_NVENC, HEVC_NVENC}
 
 # CUDA Decoders
 H264_CUVID = 'h264_cuvid'

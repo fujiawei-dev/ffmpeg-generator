@@ -2,7 +2,7 @@
 Date: 2021.02.25 15:02:34
 Description: Omit
 LastEditors: Rustle Karl
-LastEditTime: 2021.04.30 09:30:21
+LastEditTime: 2021.05.04 23:37:24
 '''
 from pathlib import Path
 
@@ -14,15 +14,14 @@ from .expression import generate_resolution
 from .nodes import (FilterableStream, InputNode, MergeOutputsNode, OutputNode,
                     OutputStream, filterable)
 
-
 # http://ffmpeg.org/ffmpeg-all.html
 
 
 def input(source, video_device: str = None, audio_device: str = None, format: str = None,
           pixel_format=None, fps: int = None, start_position: float = None, duration: float = None,
           to_position: float = None, start_position_eof: float = None, stream_loop: int = None,
-          frame_rate: int = None, width: int = None, height: int = None, hwaccel: str = None,
-          vcodec: str = None, enable_cuda=True, **kwargs) -> FilterableStream:
+          frame_rate: int = None, width: int = None, height: int = None, vcodec: str = None,
+          hwaccel: str = None, enable_cuda=True, **kwargs) -> FilterableStream:
     """https://ffmpeg.org/ffmpeg.html#Main-options"""
 
     if video_device:
@@ -35,6 +34,9 @@ def input(source, video_device: str = None, audio_device: str = None, format: st
     kwargs['source'] = str(source)
 
     if settings.CUDA_ENABLE and enable_cuda and Path(source).suffix not in constants.IMAGE_FORMATS:
+        if vcodec not in constants.CUDA_ENCODERS:
+            vcodec = None
+
         kwargs['hwaccel'] = "cuda"
         kwargs['vcodec'] = settings.DEFAULT_DECODER
 
@@ -95,6 +97,9 @@ def output(*streams_or_source, vn=False, an=False, ar=None, ab=None, ac=None,
 
     if settings.CUDA_ENABLE and enable_cuda and not preview and \
             Path(kwargs['source']).suffix not in constants.IMAGE_FORMATS:
+        if vcodec not in constants.CUDA_ENCODERS:
+            vcodec = None
+
         kwargs['vcodec'] = settings.DEFAULT_ENCODER
 
     if video_bitrate is not None:

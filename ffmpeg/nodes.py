@@ -2,7 +2,7 @@
 Date: 2021.02.27 09:29:10
 Description: Omit
 LastEditors: Rustle Karl
-LastEditTime: 2021.04.29 10:59:38
+LastEditTime: 2021.05.04 23:35:59
 '''
 from __future__ import annotations
 
@@ -19,8 +19,7 @@ from pkgs import color
 from ._dag import DagEdge, DagNode, topological_sort
 from ._node import (Node, NodeTypes, Stream, format_input_stream_tag,
                     get_filters_spec, get_stream_spec_nodes, streamable)
-from ._utils import (join_cmd_args_seq, convert_kwargs_to_cmd_line_args,
-                     escape)
+from ._utils import convert_kwargs_to_cmd_line_args, escape, join_cmd_args_seq
 
 __all__ = [
     'FFmpegError',
@@ -102,7 +101,7 @@ class OutputStream(Stream):
 
         return args
 
-    def compile(self, executable="ffmpeg", direct_print=True, join_args=False,
+    def compile(self, *, executable="ffmpeg", direct_print=True, join_args=False,
                 overwrite=True, progress='') -> Union[str, List[str]]:
         '''Build command-line for invoking ffmpeg.'''
         cmd_args_seq = [executable] + self.get_output_args(overwrite, progress)
@@ -116,18 +115,24 @@ class OutputStream(Stream):
 
         return cmd_args_seq
 
-    def run_async(self, executable="ffmpeg", direct_print=True, join_args=False,
+    def run_async(self, *, executable="ffmpeg", direct_print=True, join_args=False,
                   pipe_stdin=False, pipe_stdout=True, pipe_stderr=True, quiet=False,
                   overwrite=True, progress='') -> subprocess.Popen:
         '''Asynchronously invoke ffmpeg for the supplied node graph.'''
-        command_sequence = self.compile(executable, direct_print, join_args, overwrite, progress)
+        cmd_args_seq = self.compile(
+                executable=executable,
+                direct_print=direct_print,
+                join_args=join_args,
+                overwrite=overwrite,
+                progress=progress,
+        )
 
         stdin_stream = subprocess.PIPE if pipe_stdin else None
         stdout_stream = subprocess.PIPE if pipe_stdout else None
         stderr_stream = subprocess.PIPE if pipe_stderr else None
 
         return subprocess.Popen(
-                command_sequence,
+                cmd_args_seq,
                 stdin=stdin_stream,
                 stdout=stdout_stream if not quiet else subprocess.DEVNULL,
                 stderr=stderr_stream if not quiet else subprocess.STDOUT,
@@ -139,8 +144,8 @@ class OutputStream(Stream):
         '''Invoke ffmpeg for the supplied node graph.'''
         start = perf_counter()
         process = self.run_async(
-                executable,
-                direct_print,
+                executable=executable,
+                direct_print=direct_print,
                 quiet=quiet,
                 pipe_stdin=pipe_stdin is not None,
                 pipe_stdout=capture_stdout,
@@ -2047,7 +2052,7 @@ class FilterableStream(Stream):
         """https://ffmpeg.org/ffmpeg-filters.html#setpts"""
         raise NotImplementedError
 
-    def asetpts(self, *args, **kwargs) -> FilterableStream:
+    def asetpts(self, expr: str = "PTS-STARTPTS") -> FilterableStream:
         """https://ffmpeg.org/ffmpeg-filters.html#asetpts"""
         raise NotImplementedError
 

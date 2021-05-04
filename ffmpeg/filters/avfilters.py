@@ -163,9 +163,9 @@ def setpts(stream: Stream, expr: str = "PTS-STARTPTS") -> FilterableStream:
 
 
 @filterable()
-def asetpts(stream: Stream, *args, **kwargs) -> FilterableStream:
+def asetpts(stream: Stream, expr: str = "PTS-STARTPTS") -> FilterableStream:
     """https://ffmpeg.org/ffmpeg-filters.html#asetpts"""
-    return filter(stream, asetpts.__name__, *args, **kwargs)
+    return filter(stream, asetpts.__name__, expr)
 
 
 @filterable()

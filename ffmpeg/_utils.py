@@ -2,13 +2,13 @@
 Date: 2021.02.25 14:34:07
 Description: Omit
 LastEditors: Rustle Karl
-LastEditTime: 2021.04.29 15:41:41
+LastEditTime: 2021.05.04 23:37:10
 '''
 from typing import Dict, Iterable, List
 
+_backslash = '\\'
 _empty_symbols = (None, '', [], {})  # exclude 0
 _filter_symbols = {"-filter_complex", "-vf", "-af", "-lavfi"}
-_backslash = '\\'
 
 
 def drop_empty_dict_values(already: Dict, **kwargs) -> Dict:
@@ -73,7 +73,8 @@ def join_cmd_args_seq(args: List[str]) -> str:
     for i in range(len(cmd_args_seq)):
         if cmd_args_seq[i] in _filter_symbols:
             cmd_args_seq[i + 1] = f'"{cmd_args_seq[i + 1]}"'
-            break
+        elif ' ' in cmd_args_seq[i]:
+            cmd_args_seq[i] = f'"{cmd_args_seq[i]}"'
 
     return " ".join(cmd_args_seq)
 
