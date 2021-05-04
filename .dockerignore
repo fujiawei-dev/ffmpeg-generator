@@ -1,0 +1,50 @@
+# 自定义文件
+upload.sh
+w_*
+replace
+*ttf
+fonts
+cc
+
+# IDE 文件
+.idea
+.vscode
+.vscode-test/
+.vscodeignore
+
+# Go 相关
+vendor
+go.sum
+*.exe
+
+# Python 相关
+venv
+__pycache__
+build
+dist
+*egg-info
+
+# JavaScript / TypeScript
+out
+node_modules
+*.vsix
+*.lock
+.yarnrc
+
+# 日志文件
+*.log
+logs
+
+# 存储文件
+uploads
+storage
+*.db
+testdata/*
+!testdata/*.py
+!testdata/*.sh
+_gsdata_
+
+# Dropbox
+*.paper
+
+.gitignore

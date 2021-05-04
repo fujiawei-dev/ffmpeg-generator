@@ -1,0 +1,8 @@
+graphviz~=0.16
+matplotlib~=3.2.2
+numpy~=1.19.5
+pillow~=8.0.1
+project-pkgs~=1.0.0
+setuptools~=49.2.1
+tqdm~=4.47.0
+psutil~=5.8.0

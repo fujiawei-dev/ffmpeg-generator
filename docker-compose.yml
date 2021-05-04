@@ -1,0 +1,20 @@
+version: '3.5'
+
+# docker exec -it ffmpeg-generator_ffmpeg_1 bash
+services:
+
+  ffmpeg:
+    build: .
+    image: rustlekarl/ffmpeg-generator
+    restart: unless-stopped
+    volumes:
+      - ".:/generator"
+
+  nginx-rtmp:
+    image: alqutami/rtmp-hls:latest-alpine
+    restart: unless-stopped
+    ports:
+      - "11935:1935"
+      - "11936:8080"
+    volumes:
+      - "./docker/nginx/conf/nginx_no-ffmpeg.conf:/etc/nginx/nginx.conf"
