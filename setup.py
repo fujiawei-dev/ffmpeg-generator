@@ -1,7 +1,7 @@
 '''
 Date: 2021-02-28 17:06:01
 LastEditors: Rustle Karl
-LastEditTime: 2021.05.04 13:03:28
+LastEditTime: 2021.05.08 08:38:06
 '''
 import os.path
 
@@ -37,6 +37,7 @@ setup(
     description='Python bindings for FFmpeg - with almost all filters support, even `gltransition` filter.',
     long_description=long_description,
     long_description_content_type='text/markdown',
+    url='https://github.com/fujiawei-dev/ffmpeg-generator',
     keywords=['ffmpeg', 'ffprobe', 'ffplay'],
     classifiers=[
             'Intended Audience :: Developers',
