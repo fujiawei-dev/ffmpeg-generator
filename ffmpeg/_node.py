@@ -2,10 +2,11 @@
 Date: 2021.02.25 14:34:07
 Description: Omit
 LastEditors: Rustle Karl
-LastEditTime: 2021.04.29 11:01:29
+LastEditTime: 2021.05.24 07:34:34
 '''
 from __future__ import annotations
 
+from enum import Enum
 from typing import Any, Dict, List, Tuple, Type, Union
 
 from ._dag import DagEdge, DagNode, Edge, get_outgoing_edges
@@ -114,7 +115,9 @@ class Stream(object):
         return self._node.stream(label=self._label, selector=index)
 
 
-class NodeTypes(object):
+class NodeTypes(str, Enum):
+    # https://stackoverflow.com/questions/58608361/string-based-enum-in-python
+
     Base = 'Base'
     Input = 'Input'
     Filter = 'Filter'

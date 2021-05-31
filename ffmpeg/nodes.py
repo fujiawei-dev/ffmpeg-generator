@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import copy
 import os
+import shutil
 import subprocess
 from collections import defaultdict
 from pathlib import Path
@@ -119,6 +120,11 @@ class OutputStream(Stream):
                   pipe_stdin=False, pipe_stdout=True, pipe_stderr=True, quiet=False,
                   overwrite=True, progress='') -> subprocess.Popen:
         '''Asynchronously invoke ffmpeg for the supplied node graph.'''
+        if shutil.which(executable) is None:
+            raise FileNotFoundError(f"Can't find {executable} in $PATH or "
+                                    f"current directory. Please specify a absolute path or "
+                                    f"add {executable} into $PATH.")
+
         cmd_args_seq = self.compile(
                 executable=executable,
                 direct_print=direct_print,
@@ -179,9 +185,10 @@ class FilterableStream(Stream):
                acodec=None, vcodec=None, codec: str = None, aq_scale=None, vq_scale=None,
                aspect=None, fps=None, format=None, pixel_format=None, video_bitrate=None,
                audio_bitrate=None, v_profile=None, preset=None, mov_flags=None,
-               shortest=False, frame_size=None, v_frames: int = None, start_position: float = None,
-               duration: float = None, video_filter: str = None, audio_filter: str = None, ignore_output=False,
-               preview: bool = False, enable_cuda=True, args: list = None, **kwargs) -> OutputStream:
+               shortest=False, frame_size=None, v_frames: int = None, duration: Union[float, int, str] = None,
+               start_position: Union[float, int, str] = None, video_filter: str = None,
+               audio_filter: str = None, ignore_output=False, preview: bool = False,
+               enable_cuda=True, args: list = None, **kwargs) -> OutputStream:
         raise NotImplementedError
 
     def filter(self, *args, **kwargs) -> FilterableStream:

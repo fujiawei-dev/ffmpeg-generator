@@ -4,7 +4,7 @@ Description: Omit
 LastEditors: Rustle Karl
 LastEditTime: 2021.05.04 23:37:10
 '''
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, List, Union
 
 _backslash = '\\'
 _empty_symbols = (None, '', [], {})  # exclude 0
@@ -83,11 +83,20 @@ def string_to_seconds(clock: str) -> int:
     if isinstance(clock, (int, float)):
         return clock
 
-    hours, minutes, seconds = [int(c) for c in clock.split(":")]
+    clock = [int(c) for c in clock.split(":")]
+    if len(clock) == 0:
+        hours, minutes, seconds = 0, 0, 0
+    elif len(clock) == 1:
+        hours, minutes, seconds = 0, 0, clock[0]
+    elif len(clock) == 2:
+        hours, minutes, seconds = 0, clock[0], clock[1]
+    else:
+        hours, minutes, seconds = clock[0], clock[1], clock[2]
+
     return hours * 60 * 60 + minutes * 60 + seconds
 
 
-def seconds_to_string(seconds: float) -> str:
+def seconds_to_string(seconds: Union[float, int, str]) -> str:
     if isinstance(seconds, str):
         return seconds
 

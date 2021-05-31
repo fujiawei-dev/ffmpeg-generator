@@ -2,7 +2,7 @@
 Date: 2021.02.25 15:02:34
 Description: Omit
 LastEditors: Rustle Karl
-LastEditTime: 2021.05.04 23:37:24
+LastEditTime: 2021.05.10 12:33:20
 '''
 from pathlib import Path
 
@@ -33,12 +33,11 @@ def input(source, video_device: str = None, audio_device: str = None, format: st
 
     kwargs['source'] = str(source)
 
-    if settings.CUDA_ENABLE and enable_cuda and Path(source).suffix not in constants.IMAGE_FORMATS:
+    if settings.CUDA_ENABLE and enable_cuda and \
+            Path(source).suffix not in constants.IMAGE_FORMATS:
+        hwaccel = "cuda"
         if vcodec not in constants.CUDA_ENCODERS:
-            vcodec = None
-
-        kwargs['hwaccel'] = "cuda"
-        kwargs['vcodec'] = settings.DEFAULT_DECODER
+            vcodec = settings.DEFAULT_DECODER
 
     kwargs = drop_empty_dict_values(kwargs, hwaccel=hwaccel, vcodec=vcodec,
                                     f=format, pix_fmt=pixel_format, ss=start_position,
@@ -98,9 +97,12 @@ def output(*streams_or_source, vn=False, an=False, ar=None, ab=None, ac=None,
     if settings.CUDA_ENABLE and enable_cuda and not preview and \
             Path(kwargs['source']).suffix not in constants.IMAGE_FORMATS:
         if vcodec not in constants.CUDA_ENCODERS:
-            vcodec = None
+            vcodec = settings.DEFAULT_ENCODER
 
-        kwargs['vcodec'] = settings.DEFAULT_ENCODER
+    # codec over acodec/vcodec
+    if codec is not None:
+        acodec = None
+        vcodec = None
 
     if video_bitrate is not None:
         kwargs['b:v'] = video_bitrate

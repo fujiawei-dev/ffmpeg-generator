@@ -11,9 +11,7 @@ from ffmpeg import __version__
 
 # What packages are required for this module to be executed?
 requires = [
-    'graphviz',
     'project-pkgs',
-    'tqdm',
 ]
 
 # Import the README and use it as the long-description.

@@ -2,7 +2,7 @@
 Date: 2021.02.25 14:34:07
 Description: Omit
 LastEditors: Rustle Karl
-LastEditTime: 2021.05.08 08:38:45
+LastEditTime: 2021.05.31 10:38:26
 '''
 import subprocess
 
@@ -48,7 +48,7 @@ __all__ = [
     'vtools',
 ]
 
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 
 
 def run_ffmpeg(option: str = None, stdout=None, check=True, **kwargs) -> subprocess.CompletedProcess:

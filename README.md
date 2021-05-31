@@ -1,7 +1,7 @@
 <!--
  * @Date: 2021.02.30 17:30:51
  * @LastEditors: Rustle Karl
- * @LastEditTime: 2021.05.04 13:13:00
+ * @LastEditTime: 2021.05.25 08:27:32
 -->
 
 # FFmpeg Generator
@@ -12,6 +12,7 @@ Python bindings for FFmpeg - with almost all filters support, even `gltransition
 
 - [FFmpeg Generator](#ffmpeg-generator)
   - [Overview](#overview)
+  - [TODO](#todo)
   - [Installation](#installation)
   - [Documents](#documents)
   - [GLTransition Filter](#gltransition-filter)
@@ -44,6 +45,11 @@ This project is based on [`ffmpeg-python`](https://github.com/kkroening/ffmpeg-p
 - support FFplay&FFprobe
 - enable cuda hwaccel by default
 
+## TODO
+
+- [] separate outputs for select filter
+- [] experiment: automatically generate subtitle files
+
 ## Installation
 
 ```shell
@@ -64,7 +70,7 @@ Or read my study notes, plan to demonstrate all the filters, but written in Chin
 - [All Examples for Audio Filters](docs/afilters.md)
 - [All Examples for Video Filters](docs/vfilters.md)
 - [All Examples for Audio/Video Sources](docs/sources.md)
-- [All Examples for Media Filters](docs/mfilters.md)
+- [All Examples for Media Filters](docs/avfilters.md)
 - [Introduce Usage of FFplay](docs/ffplay.md)
 - [More Notes](https://github.com/studying-notes/ffmpeg-notes)
 
@@ -264,7 +270,11 @@ vtools.read_frame_as_jpeg(src="src", frame=10)
 ```python
 from ffmpeg import atools
 
-atools.convert_audio_to_raw_pcm(src="src")
+audio = '/path/to/audio.m4a'
+dst = '/path/to/dst.pcm'
+
+atools.convert_audio_to_raw_pcm(src=audio, dst=None)
+atools.convert_audio_to_raw_pcm(src=audio, dst=dst)
 ```
 
 ### Assemble Video from Sequence of Frames
