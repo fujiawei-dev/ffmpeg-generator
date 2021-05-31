@@ -5,11 +5,11 @@ LastEditTime: 2021.05.04 23:34:46
 '''
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, NamedTuple, Optional, Union
 
 from .. import constants
 from .._ffmpeg import input, merge_outputs, output
-from .._utils import seconds_to_string
+from .._utils import seconds_to_string, string_to_seconds
 
 __all__ = [
     "adjust_tempo",
@@ -64,11 +64,16 @@ def modify_metadata(src: Union[str, Path], dst: Union[str, Path], *,
 
 
 def separate_video_stream(src: Union[str, Path], dst: Union[str, Path]):
-    input(src).output(dst, an=True, vcodec="copy").run()
+    input(src, enable_cuda=False).output(dst, an=True, enable_cuda=False, vcodec="copy").run()
 
 
-def separate_audio_stream(src: Union[str, Path], dst: Union[str, Path]):
-    input(src).output(dst, vn=True, acodec="copy").run()
+def separate_audio_stream(src: Union[str, Path], dst: Union[str, Path], pcm_format=False):
+    if pcm_format:
+        kwargs = dict(format=constants.S16LE, acodec=constants.PCM_S16LE, ac=1, ar="16k")
+    else:
+        kwargs = dict(acodec=constants.COPY)
+
+    input(src, enable_cuda=False).output(dst, vn=True, enable_cuda=False, **kwargs).run()
 
 
 def convert_format(src: Union[str, Path], dst: Union[str, Path], *,
@@ -77,8 +82,8 @@ def convert_format(src: Union[str, Path], dst: Union[str, Path], *,
 
 
 def cut_into_multiple_parts(src: Union[str, Path], dst: Union[str, Path],
-                            *, durations: List[float], vcodec="libx264",
-                            enable_cuda=True, overwrite=True):
+                            *, durations: List[Union[float, int, str]], vcodec="libx264",
+                            enable_cuda=True, overwrite=True, accumulative=False):
     """Cut the video or audio into multiple parts.
 
     Example:
@@ -98,16 +103,51 @@ def cut_into_multiple_parts(src: Union[str, Path], dst: Union[str, Path],
 
     for order, duration in enumerate(durations):
         # skip negative value
-        if duration is not None and duration < 0:
+        if isinstance(duration, (int, float)) and duration < 0:
             start_position -= duration
             continue
 
-        outs.append(raw.output(f"{dst / path.stem}_part{order}{path.suffix}",
+        if isinstance(duration, str):
+            duration = string_to_seconds(duration)
+
+        if isinstance(duration, (int, float)) and accumulative:
+            duration -= start_position
+
+        outs.append(raw.output(f"{dst / path.stem}_{order}{path.suffix}",
                                acodec="copy", vcodec=vcodec, enable_cuda=enable_cuda,
                                start_position=seconds_to_string(start_position), duration=duration))
 
         if duration is not None:
             start_position += duration
+
+    merge_outputs(*outs).run(overwrite=overwrite)
+
+
+class TrimPair(NamedTuple):
+    Start: Union[str, int, float]
+    End: Union[str, int, float]
+    IsDuration: bool = False
+
+
+def cut_into_multiple_parts_v2(src: Union[str, Path], dst: Union[str, Path],
+                               *, start_duration_pairs: List[TrimPair], vcodec="libx264",
+                               enable_cuda=True, overwrite=True):
+    outs = []
+    path = Path(src)
+    raw = input(src, enable_cuda=enable_cuda)
+
+    for order, pair in enumerate(start_duration_pairs):
+        start_position = string_to_seconds(pair.Start)
+        end_position = string_to_seconds(pair.End)
+
+        if not pair.IsDuration and end_position > start_position:
+            duration = end_position - start_position
+        else:
+            duration = end_position
+
+        outs.append(raw.output(f"{dst / path.stem}_{order}{path.suffix}",
+                               acodec="copy", vcodec=vcodec, enable_cuda=enable_cuda,
+                               start_position=start_position, duration=duration))
 
     merge_outputs(*outs).run(overwrite=overwrite)
 
