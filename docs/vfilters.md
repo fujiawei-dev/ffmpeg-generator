@@ -2,7 +2,7 @@
  * @Date: 2021.03.08T22:56:00+08:00
  * @Description: All Examples for Video Filters
  * @LastEditors: Rustle Karl
- * @LastEditTime: 2021.04.30 12:28:42
+ * @LastEditTime: 2021.05.24 07:31:16
 -->
 
 FFmpeg 自带了大概有 450 多个音视频媒体滤镜，基本上涵盖了视频处理的绝大部分功能。但是由于对这些滤镜不可能了如指掌，甚至大部分滤镜都没见过，就可能不知道如何实现一个需求，所以还是有必要尝试一遍 FFmpeg 的全部滤镜吧。所以就决定写一下这个系列，力求给出每个滤镜的示例及最终结果对比视频/图，但也有可能中途夭折。
@@ -173,6 +173,8 @@ https://www.bilibili.com/video/BV1V54y1a7Um
 
 可添加 ASS 格式的字幕。参数及用法与 subtitles 滤镜基本一致。
 
+Windows 下**路径中如果存在空格**会出问题。
+
 ### 参数
 
 - shaping 设置渲染引擎。
@@ -193,6 +195,22 @@ _ = input(src).ass(filename=media_v0_ass.as_posix()).output(dst).run()
 ```
 ffmpeg -i testdata\media\0.mp4 -filter_complex "[0]ass=filename=testdata/media/0.ass[tag0]" -map [tag0] testdata\media\v0_ass.mp4 -y -hide_banner
 [0.6707s]
+```
+
+已封装成常用函数：
+
+```python
+from pathlib import Path
+from ffmpeg import vtools
+
+Dir = Path(r'C:\Users\Admin\Videos\FFmpeg\InputsData')
+
+vtools.video_add_ass_subtitle(Dir / '2_v4.mp4', Dir / '2_v4.ass', Dir / '2_v4_1.mp4')
+```
+
+```
+ffmpeg -hwaccel cuda -vcodec h264_cuvid -i C:\Users\Admin\Videos\FFmpeg\InputsData\2_v4.mp4 -filter_complex "[0]ass=filename=C\\:\\\\Users\\\\Admin\\\\Videos\\\\FFmpeg\\\\InputsData\\\\2_v4.ass[tag0]" -acodec copy -vcodec h264_nvenc -map [tag0] -map 0:a C:\Users\Admin\Videos\FFmpeg\InputsData\2_v4_1.mp4 -y -hide_banner
+[10.3502s]
 ```
 
 #### 对比
@@ -7737,23 +7755,23 @@ ffmpeg -hwaccel cuda -vcodec h264_cuvid -i testdata\media\0.mp4 -hwaccel cuda -v
 
 [视频对比链接]
 
-#### 2x2 四格布局
-
-```
-
-```
+#### 任意行列布局
 
 ```python
+from ffmpeg import input, vfilters, vtools
+from ffmpeg.expression import generate_gird_layout
+from tests import data
 
+vtools.xstack_videos(
+        *([data.SHORT1] * 16),
+        dst=data.TEST_OUTPUTS_DIR / 'xstack.mp4',
+        layout=generate_gird_layout(4, 4),
+)
+
+videos = [input(data.V1)] * 16
+vfilters.xstack(*videos, inputs=len(videos), layout=generate_gird_layout(4, 4), shortest=0). \
+    scale(h=-1, w=4096).output(data.TEST_OUTPUTS_DIR / 'xstack.mp4', ).run()
 ```
-
-```
-
-```
-
-#### 对比
-
-[视频对比链接]
 
 ## yadif
 
@@ -7879,6 +7897,11 @@ ffmpeg -i testdata\i1.jpg -filter_complex "[0]zoompan=d=700:x=if(gte(zoom\,1.5)\
 
 > https://ffmpeg.org/ffmpeg-filters.html#zscale
 
+用 libzimg 库调整输入视频的大小。
+
+zscale 过滤器通过更改输出采样宽高比来强制输出显示宽高比与输入相同。
+
+如果输入图像格式与下一个过滤器请求的格式不同，则 zscale 过滤器会将输入转换为请求的格式。
 
 ### 参数
 
