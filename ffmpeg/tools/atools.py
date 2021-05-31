@@ -1,12 +1,13 @@
 '''
 Date: 2021.02-28 19:35:09
 LastEditors: Rustle Karl
-LastEditTime: 2021.04.25 10:23:18
+LastEditTime: 2021.05.24 07:33:35
 '''
 import re
 import subprocess
 import sys
-from typing import List
+from pathlib import Path
+from typing import List, Tuple, Union
 
 from .._ffmpeg import input
 from ..constants import PCM_S16LE, S16LE
@@ -17,13 +18,16 @@ __all__ = [
 ]
 
 
-def convert_audio_to_raw_pcm(src) -> bytes:
-    raw, _ = input(src).output("-", format=S16LE, acodec=PCM_S16LE,
-                               ac=1, ar="16k").run(capture_stdout=True)
+def convert_audio_to_raw_pcm(src: Union[str, Path], dst: Union[str, Path] = None) -> bytes:
+    raw, _ = input(src, enable_cuda=False). \
+        output(dst or "-", format=S16LE, acodec=PCM_S16LE,
+               ac=1, ar="16k", enable_cuda=False). \
+        run(capture_stdout=dst is None)
+
     return raw
 
 
-def detect_silence(src, *, noise=-60, duration=2) -> List[List[float]]:
+def detect_silence(src, *, noise=-60, duration=2) -> List[Tuple[float, float]]:
     """Detect silence in an audio stream.
 
     This filter logs a message when it detects that the input audio volume is less or
@@ -44,6 +48,6 @@ def detect_silence(src, *, noise=-60, duration=2) -> List[List[float]]:
     info = process.communicate()[1].decode("utf-8")
     if process.returncode != 0:
         sys.stderr.write(info)
-        return
+        return []
 
     return list(zip(map(float, silence_start.findall(info)), map(float, silence_end.findall(info))))
