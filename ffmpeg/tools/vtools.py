@@ -1,7 +1,7 @@
 '''
 Date: 2021.03.01 19:46:08
 LastEditors: Rustle Karl
-LastEditTime: 2021.04.25 13:07:29
+LastEditTime: 2021.05.24 07:34:01
 '''
 import os
 from pathlib import Path
@@ -133,6 +133,24 @@ def video_add_text_watermark(v_src, dst, *, text: str, x: int = 0, y: int = 0,
                              keep_audio=True):
     v_input = input(v_src)
     stream = v_input.drawtext(text=text, x=x, y=y, fontsize=fontsize, fontfile=fontfile)
+
+    if keep_audio:
+        stream.output(v_input.audio, dst, acodec="copy").run()
+    else:
+        stream.output(dst).run()
+
+
+def video_add_ass_subtitle(v_src, s_src=None, dst=None, keep_audio=True):
+    if not s_src:
+        s_src = Path(v_src).with_suffix('.ass')
+        assert s_src.exists()
+
+    if not dst:
+        path = Path(v_src)
+        dst = path.with_name(path.stem + '_video_ass.mp4')
+
+    v_input = input(v_src)
+    stream = v_input.ass(filename=str(s_src))
 
     if keep_audio:
         stream.output(v_input.audio, dst, acodec="copy").run()
