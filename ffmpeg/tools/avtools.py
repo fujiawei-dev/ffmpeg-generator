@@ -77,8 +77,13 @@ def separate_audio_stream(src: Union[str, Path], dst: Union[str, Path], pcm_form
 
 
 def convert_format(src: Union[str, Path], dst: Union[str, Path], *,
-                   format=None, vcodec="copy", acodec="copy"):
-    input(src).output(dst, format=format, acodec=acodec, vcodec=vcodec).run()
+                   format=None, vcodec="copy", acodec="copy", enable_cuda=True):
+    if vcodec == constants.COPY:
+        enable_cuda = False
+
+    input(src, enable_cuda=enable_cuda). \
+        output(dst, format=format, acodec=acodec,
+               vcodec=vcodec, enable_cuda=enable_cuda).run()
 
 
 def cut_into_multiple_parts(src: Union[str, Path], dst: Union[str, Path],
