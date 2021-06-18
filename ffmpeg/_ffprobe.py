@@ -1,7 +1,7 @@
 '''
 Date: 2021.02-25 14:34:07
 LastEditors: Rustle Karl
-LastEditTime: 2021.04.25 13:40:57
+LastEditTime: 2021.06.18 17:21:29
 '''
 import json
 import subprocess
@@ -125,7 +125,7 @@ class FFprobe(object):
 
     @property
     def audio_duration(self) -> float:
-        return self.audio.get('duration') or 0
+        return float(self.audio.get('duration')) or 0
 
     def __str__(self):
         return '<FFprobe(%s)>' % self.source
