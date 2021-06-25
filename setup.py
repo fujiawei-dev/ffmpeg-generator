@@ -1,13 +1,13 @@
 '''
 Date: 2021-02-28 17:06:01
 LastEditors: Rustle Karl
-LastEditTime: 2021.05.08 08:38:06
+LastEditTime: 2021.06.24 17:16:23
 '''
 import os.path
 
 from setuptools import setup
 
-from ffmpeg import __version__
+__version__ = '1.0.4'
 
 # What packages are required for this module to be executed?
 requires = [
@@ -42,6 +42,7 @@ setup(
             'License :: OSI Approved :: MIT License',
             'Operating System :: OS Independent',
             'Programming Language :: Python :: 3.8',
+            'Programming Language :: Python :: 3.9',
     ],
     install_requires=requires,
 )

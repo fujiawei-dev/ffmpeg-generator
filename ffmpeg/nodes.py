@@ -102,13 +102,13 @@ class OutputStream(Stream):
 
         return args
 
-    def compile(self, *, executable="ffmpeg", direct_print=True, join_args=False,
+    def compile(self, *, executable="ffmpeg", print_cmd=True, join_args=False,
                 overwrite=True, progress='') -> Union[str, List[str]]:
         '''Build command-line for invoking ffmpeg.'''
         cmd_args_seq = [executable] + self.get_output_args(overwrite, progress)
         command = join_cmd_args_seq(cmd_args_seq)
 
-        if direct_print:
+        if print_cmd:
             color.greenln(command)
 
         if join_args:
@@ -116,7 +116,7 @@ class OutputStream(Stream):
 
         return cmd_args_seq
 
-    def run_async(self, *, executable="ffmpeg", direct_print=True, join_args=False,
+    def run_async(self, *, executable="ffmpeg", print_cmd=True, join_args=False,
                   pipe_stdin=False, pipe_stdout=True, pipe_stderr=True, quiet=False,
                   overwrite=True, progress='') -> subprocess.Popen:
         '''Asynchronously invoke ffmpeg for the supplied node graph.'''
@@ -127,7 +127,7 @@ class OutputStream(Stream):
 
         cmd_args_seq = self.compile(
                 executable=executable,
-                direct_print=direct_print,
+                print_cmd=print_cmd,
                 join_args=join_args,
                 overwrite=overwrite,
                 progress=progress,
@@ -144,14 +144,14 @@ class OutputStream(Stream):
                 stderr=stderr_stream if not quiet else subprocess.STDOUT,
         )
 
-    def run(self, executable="ffmpeg", direct_print=True, quiet=False,
+    def run(self, executable="ffmpeg", print_cmd=True, quiet=False,
             capture_stdout=True, capture_stderr=True, pipe_stdin=None,
             overwrite=True, progress='') -> Union[str, List[str]]:
         '''Invoke ffmpeg for the supplied node graph.'''
         start = perf_counter()
         process = self.run_async(
                 executable=executable,
-                direct_print=direct_print,
+                print_cmd=print_cmd,
                 quiet=quiet,
                 pipe_stdin=pipe_stdin is not None,
                 pipe_stdout=capture_stdout,

@@ -43,12 +43,13 @@ This project is based on [`ffmpeg-python`](https://github.com/kkroening/ffmpeg-p
 - support video sources
 - support almost all filters
 - support FFplay&FFprobe
-- enable cuda hwaccel by default
+- enable cuda hwaccel by default, or close globally by code below
 
-## TODO
+```python
+from ffmpeg import settings
 
-- [] separate outputs for select filter
-- [] experiment: automatically generate subtitle files
+settings.CUDA_ENABLE = False
+```
 
 ## Installation
 

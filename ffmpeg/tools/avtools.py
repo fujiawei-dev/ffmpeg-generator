@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 from typing import Dict, List, NamedTuple, Optional, Union
 
-from .. import constants
+from .. import FFprobe, constants
 from .._ffmpeg import input, merge_outputs, output
 from .._utils import seconds_to_string, string_to_seconds
 
@@ -200,3 +200,18 @@ def concat_multiple_parts(dst: Union[str, Path], *files: Union[str, Path],
     input(concat, format="concat", safe=0).output(dst, acodec=acodec, vcodec=vcodec).run()
 
     Path(concat).unlink(missing_ok=True)
+
+
+def start_one_stream_loop(src: Union[str, Path], *, loop: int = -1, codec="copy",
+                          vcodec="copy", acodec="copy", format="mpegts",
+                          source_url: str = "udp://localhost:10240"):
+    '''Push a video stream in a loop forever.'''
+    input(src, stream_loop=loop, re=None) \
+        .output(source_url, codec=codec, vcodec=vcodec,
+                acodec=acodec, format=format). \
+        run(capture_stdout=False, capture_stderr=False)
+
+
+def detect_source_stream(source_url: str, timeout: int = 3) -> dict:
+    '''Detect whether is a stream source.'''
+    return FFprobe(source_url, timeout=timeout).metadata

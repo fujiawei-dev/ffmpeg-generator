@@ -2,53 +2,42 @@
 Date: 2021.02.25 14:34:07
 Description: Omit
 LastEditors: Rustle Karl
-LastEditTime: 2021.05.31 10:38:26
+LastEditTime: 2021.06.25 09:25:13
 '''
 import subprocess
 
 from pkgs import color
 
 from ._ffmpeg import input, input_source, merge_outputs, output
-from ._ffplay import (detect_device_available, ffplay_audio, ffplay_video,
-                      run_ffplay)
+from ._ffplay import ffplay_audio, ffplay_video, run_ffplay
 from ._ffprobe import FFprobe, metadata, run_ffprobe
-from ._progress import show_progress
 from ._utils import convert_kwargs_to_cmd_line_args
-from ._view import view
 from .filters import afilters, avfilters, vfilters
 from .nodes import FFmpegError
-from .tools import atools, avtools, iotools, rtmp, vtools
+from .tools import atools, avtools, vtools
 
 __all__ = [
     'FFmpeg',
     'FFmpegError',
     'FFprobe',
-    '__version__',
     'afilters',
     'atools',
     'avfilters',
     'avtools',
     'constants',
-    'detect_device_available',
     'ffplay_audio',
     'ffplay_video',
     'input',
     'input_source',
-    'iotools',
     'merge_outputs',
     'metadata',
     'output',
-    'rtmp',
     'run_ffmpeg',
     'run_ffplay',
     'run_ffprobe',
-    'show_progress',
     'vfilters',
-    'view',
     'vtools',
 ]
-
-__version__ = '1.0.2'
 
 
 def run_ffmpeg(option: str = None, stdout=None, check=True, **kwargs) -> subprocess.CompletedProcess:

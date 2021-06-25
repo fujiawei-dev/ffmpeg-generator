@@ -1,1 +1,5 @@
 project-pkgs~=1.0.0
+tqdm~=4.61.1
+graphviz~=0.16
+psutil~=5.8.0
+numpy~=1.21.0

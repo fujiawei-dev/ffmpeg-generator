@@ -1,24 +1,23 @@
 '''
 Date: 2021.03.06 23:06:21
 LastEditors: Rustle Karl
-LastEditTime: 2021.04.25 13:39:24
+LastEditTime: 2021.06.25 09:45:47
 '''
 import subprocess
 from pathlib import Path
 
 from pkgs import color
 
-from ._utils import join_cmd_args_seq, convert_kwargs_to_cmd_line_args
+from ._utils import convert_kwargs_to_cmd_line_args, join_cmd_args_seq
 
 __all__ = [
-    "detect_device_available",
     "ffplay_audio",
     "ffplay_video",
     "run_ffplay",
 ]
 
 
-def run_ffplay(source: str = None, direct_print=True, **kwargs):
+def run_ffplay(source: str = None, print_cmd=True, **kwargs):
     """Run raw ffplay command."""
     args = ["ffplay", "-hide_banner"]
 
@@ -34,7 +33,7 @@ def run_ffplay(source: str = None, direct_print=True, **kwargs):
     if source is not None:
         args.append(Path(source).as_posix())
 
-    if direct_print:
+    if print_cmd:
         color.greenln(join_cmd_args_seq(args))
 
     return subprocess.Popen(args)
@@ -68,12 +67,3 @@ def ffplay_video(source: str, x: int = None, y: int = None, video_size: str = No
                fs=fs, an=an, vn=vn, sn=sn, f=f, s=s, sync=sync, ss=ss, t=t, vf=vf,
                af=af, seek_interval=seek_interval, window_title=window_title,
                showmode=show_mode, loop=loop)
-
-
-def detect_device_available(source: str, f: str):
-    """
-    Examples:
-        ffplay -f dshow -i video='USB2.0 PC CAMERA
-        ffplay -f vfwcap -i 0
-    '"""
-    run_ffplay(source, f=f).wait()
