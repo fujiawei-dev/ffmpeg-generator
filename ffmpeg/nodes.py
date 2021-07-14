@@ -2210,7 +2210,7 @@ class FilterNode(Node):
         kwargs = self._kwargs or {}
 
         if self.Label in {'split', 'asplit'} and outgoing_edges:
-            args = [len(outgoing_edges)]
+            args = [str(len(outgoing_edges))]
         else:
             args = [escape(x, '\\\'=:') for x in args]
 

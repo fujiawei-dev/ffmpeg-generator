@@ -7,7 +7,7 @@ import os.path
 
 from setuptools import setup
 
-__version__ = '1.0.4'
+__version__ = '1.0.5'
 
 # What packages are required for this module to be executed?
 requires = [

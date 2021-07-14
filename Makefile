@@ -4,7 +4,7 @@
 .NOTPARALLEL: ;          # wait for target to finish
 .EXPORT_ALL_VARIABLES: ; # send all vars to shell
 
-VERSION = 1.0.4
+VERSION = 1.0.5
 PACKAGE = ffmpeg-generator
 
 # While console windows in Windows 10 do support VT (Virtual Terminal) / ANSI
