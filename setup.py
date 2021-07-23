@@ -29,7 +29,7 @@ setup(
         'ffmpeg.transitions',
     ],
     package_data={'ffmpeg': ['transitions/glsl/*']},
-    install_pakcage_data=True,
+    include_package_data=True,
     version=__version__,
     license='MIT',
     author='Rustle Karl',
