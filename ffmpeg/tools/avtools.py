@@ -215,3 +215,10 @@ def start_one_stream_loop(src: Union[str, Path], *, loop: int = -1, codec="copy"
 def detect_source_stream(source_url: str, timeout: int = 3) -> dict:
     '''Detect whether is a stream source.'''
     return FFprobe(source_url, timeout=timeout).metadata
+
+
+def merge_m3u8_files(src: Union[Path, str], dst: Union[Path, str]):
+    '''Merge m3u8 playlist together.'''
+    input(src, protocol_whitelist='file,http,https,tcp,tls,crypto'). \
+        output(dst, codec=constants.COPY). \
+        run(capture_stdout=False, capture_stderr=False)
