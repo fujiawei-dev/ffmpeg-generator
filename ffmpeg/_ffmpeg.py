@@ -14,6 +14,10 @@ from .expression import generate_resolution
 from .nodes import (FilterableStream, InputNode, MergeOutputsNode, OutputNode,
                     OutputStream, filterable)
 
+from fractions import Fraction
+
+from typing import Union
+
 # http://ffmpeg.org/ffmpeg-all.html
 
 
@@ -49,7 +53,7 @@ def input(source, video_device: str = None, audio_device: str = None, format: st
 
 
 def input_source(source: str, color: str = None, level: int = None,
-                 size: str = None, rate: int = None, sar: str = None,
+                 size: str = None, rate: Union[int, float, Fraction] = None, sar: str = None,
                  duration: float = None, decimals: bool = None) -> FilterableStream:
     """https://ffmpeg.org/ffmpeg-filters.html#Video-Sources"""
     if source not in constants.VIDEO_SOURCES:
